@@ -1,29 +1,32 @@
 package pl.sda.hello.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
+
+import javax.validation.constraints.Null;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Book implements Serializable{
 
     private long serialVersionUID = 83843247273768l;
+
 
     private String id;
     private String title;
     private String author;
     private String isbn;
     private LocalDate releaseDate;
+@ApiModelProperty(hidden = true)
+   //@Null
+   /*@JsonIgnore*/
+   @JsonProperty(value = "errorMessage",access = JsonProperty.Access.READ_ONLY)
+    private String errorMessage;
 
-    public Book(long serialVersionUID, String title, String author, String isbn, LocalDate releaseDate) {
-        this.serialVersionUID = serialVersionUID;
-        this.title = title;
-        this.author = author;
-        this.isbn = isbn;
-        this.releaseDate = releaseDate;
-    }
-
-    public Book() {
-    }
-
+    @JsonIgnore
     public String getId() {
         return id;
     }
@@ -60,7 +63,17 @@ public class Book implements Serializable{
         return releaseDate;
     }
 
+
     public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    //@JsonProperty
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+    //@JsonIgnore
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 }

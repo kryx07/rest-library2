@@ -4,8 +4,14 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public class Books implements Serializable {
+
+    public Books(Map<String, Book> bookMap) {
+        this.bookMap = bookMap;
+    }
+
 
     private long serialVersionUID = 83877944648906l;
 
@@ -41,6 +47,7 @@ public class Books implements Serializable {
     public boolean contains(String id){
         return bookMap.containsKey(id);
     }
+
 
 
 }
