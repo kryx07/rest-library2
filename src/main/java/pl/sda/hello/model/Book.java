@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Book implements Serializable{
+public class Book implements Serializable {
 
     private long serialVersionUID = 83843247273768l;
 
@@ -20,10 +20,9 @@ public class Book implements Serializable{
     private String author;
     private String isbn;
     private LocalDate releaseDate;
-@ApiModelProperty(hidden = true)
-   //@Null
-   /*@JsonIgnore*/
-   @JsonProperty(value = "errorMessage",access = JsonProperty.Access.READ_ONLY)
+
+    @ApiModelProperty(hidden = true)
+    @JsonProperty(value = "errorMessage", access = JsonProperty.Access.READ_ONLY)
     private String errorMessage;
 
     @JsonIgnore
@@ -72,6 +71,7 @@ public class Book implements Serializable{
     public String getErrorMessage() {
         return errorMessage;
     }
+
     //@JsonIgnore
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;

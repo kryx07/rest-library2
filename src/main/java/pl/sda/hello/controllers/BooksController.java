@@ -11,6 +11,7 @@ import pl.sda.hello.services.BooksService;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/books")
@@ -25,25 +26,27 @@ public class BooksController {
 
     @RequestMapping(value = "/all", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<Books> getAllBooks() {
-        return new ResponseEntity<Books>(booksService.getAllBooks(), HttpStatus.OK);
+        return booksService.getAllBooks() == null
+                ? new ResponseEntity<Books>(booksService.createBooksWithError("There are no books in the library"),
+                HttpStatus.NOT_FOUND)
+                : new ResponseEntity<Books>(booksService.getAllBooks(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "{id}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<Book> getBookById(@PathVariable String id) {
-        if (booksService.getBookById(id) == null) {
-            return new ResponseEntity<Book>(booksService.createWithError("Book with id:" + id + " has not been found!"), HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<Book>(booksService.getBookById(id), HttpStatus.OK);
+        return booksService.getBookById(id) == null ?
+                new ResponseEntity<Book>(booksService.createBookWithError
+                        ("Book with id:" + id + " has not been found!"), HttpStatus.NOT_FOUND) :
+                new ResponseEntity<Book>(booksService.getBookById(id), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{author}", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<Books> getBookByAuthor(@PathVariable String author) {
-        if (booksService.getBookByAuthor(author) == null) {
-          //  return new ResponseEntity<Books>(booksService.createWithError("Book with id:" + author + " has not been found!"), HttpStatus.NO_CONTENT);
-        }
-
-        return new ResponseEntity<Books>(booksService.getBookByAuthor(author), HttpStatus.OK);
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<Books> getBookByAuthor(@RequestParam String author) {
+        Books booksByAuthor = booksService.getBookByAuthor(author);
+        return booksByAuthor == null ?
+                new ResponseEntity<Books>(booksService
+                        .createBooksWithError("No books of " + author + " have been found!"), HttpStatus.NOT_FOUND) :
+                new ResponseEntity<Books>(booksService.getBookByAuthor(author), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST)
@@ -58,8 +61,31 @@ public class BooksController {
             e.printStackTrace();
         }
 
-        return  booksService.contains(book.getId()) ? ResponseEntity.created(uri).build() : ResponseEntity.badRequest().build();
+        return booksService.contains(book.getId()) ? ResponseEntity.created(uri).build()
+                : ResponseEntity.badRequest().build();
     }
 
+    @RequestMapping(method = RequestMethod.PUT)
+    public ResponseEntity<Book> updateBook(@RequestParam String id, @RequestBody Book newBook) {
+        URI uri = null;
+        try {
+            uri = new URI(ServletUriComponentsBuilder.fromCurrentRequestUri().build() + "/" + id);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
 
+        return booksService.update(id, newBook) ?
+                ResponseEntity.created(uri).build() :
+                ResponseEntity.badRequest().build();
+
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity deleteBook(@PathVariable String id){
+        return booksService.delete(id) ?
+                ResponseEntity.ok().build() :
+                ResponseEntity.badRequest().build();
+
+
+    }
 }
